@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foreman — Meridian Heights Residences</title>
+<style>
+@font-face { font-family: 'system-serif'; src: local('Georgia'); }
+
+:root {
+  --navy: #12213A;
+  --navy-light: #1C3153;
+  --slate: #3E4C5E;
+  --slate-light: #6B7A8F;
+  --off-white: #F7F5F0;
+  --card: #FFFFFF;
+  --border: #E4E1D8;
+  --teal: #3D7068;
+  --teal-light: #E8F0EE;
+  --gold: #B8863A;
+  --gold-light: #F7EFE0;
+  --red: #C1554A;
+  --red-light: #FBEBE9;
+  --green: #5A8C6B;
+  --green-light: #EAF3EC;
+  --ink: #1B2430;
+  --ink-soft: #59626F;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(18,33,58,0.06), 0 4px 12px rgba(18,33,58,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--off-white);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: 'IBM Plex Mono', 'SF Mono', Consolas, monospace; }
+.serif { font-family: Georgia, 'Iowan Old Style', serif; }
+
+/* ===== Layout shell ===== */
+.app {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  min-height: 100vh;
+}
+
+/* ===== Left rail ===== */
+.rail {
+  background: var(--navy);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.rail-logo {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: var(--gold);
+  color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px;
+  margin-bottom: 22px;
+  font-family: Georgia, serif;
+}
+.rail-btn {
+  width: 52px;
+  padding: 10px 4px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #9AA9BF;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.rail-btn:hover { background: rgba(255,255,255,0.06); color: #E4E9F0; }
+.rail-btn.active { background: rgba(184,134,58,0.18); color: #F0D8A8; }
+.rail-btn svg { width: 18px; height: 18px; }
+.rail-spacer { flex: 1; }
+
+/* ===== Main ===== */
+.main { padding: 0 32px 60px; max-width: 1400px; }
+
+/* ===== Header ===== */
+.header {
+  padding: 24px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.header h1 {
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+.badge-atrisk { background: var(--gold-light); color: #8A6221; }
+.badge-atrisk .badge-dot { background: var(--gold); }
+.badge-ontrack { background: var(--green-light); color: #3D6B4C; }
+.badge-ontrack .badge-dot { background: var(--green); }
+.badge-delayed, .badge-critical { background: var(--red-light); color: #9C3B32; }
+.badge-delayed .badge-dot, .badge-critical .badge-dot { background: var(--red); }
+.badge-watch { background: #EEF1F5; color: var(--slate); }
+.badge-watch .badge-dot { background: var(--slate-light); }
+
+.header-meta {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.header-meta strong { color: var(--ink); font-weight: 600; }
+
+.header-stats {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+.header-stat { text-align: right; }
+.header-stat .label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--slate-light); font-weight: 700; margin-bottom: 3px; }
+.header-stat .value { font-size: 20px; font-weight: 700; color: var(--navy); font-family: 'IBM Plex Mono', monospace; }
+.header-stat .value.small { font-size: 15px; }
+
+/* Health score ring */
+.health-block { display: flex; align-items: center; gap: 14px; }
+.health-ring {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+.health-ring-inner {
+  position: absolute; inset: 6px;
+  background: var(--off-white);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.health-ring-inner .num { font-size: 18px; font-weight: 800; color: var(--navy); font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+.health-ring-inner .denom { font-size: 8px; color: var(--slate-light); font-weight: 700; }
+.health-sub-label { font-size: 10.5px; color: var(--slate-light); text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; }
+
+.health-breakdown {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+  flex-wrap: wrap;
+}
+.health-item { display: flex; flex-direction: column; gap: 5px; min-width: 90px; }
+.health-item-label { font-size: 10.5px; color: var(--ink-soft); font-weight: 600; display: flex; justify-content: space-between; }
+.health-item-bar { height: 5px; background: #EAE7DE; border-radius: 4px; overflow: hidden; }
+.health-item-fill { height: 100%; border-radius: 4px; }
+
+/* ===== KPI cards ===== */
+.section-title {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 36px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .count-pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--teal-light);
+  color: var(--teal);
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.kpi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.kpi-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--slate-light); }
+.kpi-trend { font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; padding: 1px 6px; border-radius: 5px; }
+.trend-up-bad { background: var(--red-light); color: #9C3B32; }
+.trend-up-good { background: var(--green-light); color: #3D6B4C; }
+.trend-flat { background: #EEF1F5; color: var(--slate); }
+.kpi-value { font-size: 26px; font-weight: 800; color: var(--navy); font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+.kpi-note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.card-header h3 {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-body { padding: 20px; }
+.card-body.no-pad { padding: 0; }
+
+/* ===== Daily Brief ===== */
+.brief-card { border-left: 3px solid var(--gold); }
+.brief-text { font-size: 14.5px; line-height: 1.7; color: var(--ink); margin-bottom: 16px; }
+.brief-text strong { color: var(--navy); }
+.brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px; }
+.brief-list-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--slate-light); letter-spacing: 0.03em; margin-bottom: 8px; }
+.brief-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.brief-list li { font-size: 13px; color: var(--ink-soft); display: flex; gap: 8px; align-items: flex-start; }
+.brief-list li::before { content: "→"; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+
+.ai-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.ai-btn {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--off-white);
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ai-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+.ai-output {
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--off-white);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+  display: none;
+  white-space: pre-line;
+}
+.ai-output.visible { display: block; animation: fadeIn 0.25s ease; }
+.ai-output-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--teal); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ai-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulse 1.6s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== Tables ===== */
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--slate-light);
+  font-weight: 700;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #FBFAF7;
+}
+td {
+  padding: 12px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { cursor: pointer; transition: background 0.12s; }
+tbody tr:hover { background: #FBFAF7; }
+.td-strong { font-weight: 600; color: var(--navy); }
+.td-mono { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; }
+.td-soft { color: var(--ink-soft); font-size: 12.5px; }
+
+/* small status badges reused in tables */
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; }
+.pill-green { background: var(--green-light); color: #3D6B4C; }
+.pill-green .pill-dot { background: var(--green); }
+.pill-gold { background: var(--gold-light); color: #8A6221; }
+.pill-gold .pill-dot { background: var(--gold); }
+.pill-red { background: var(--red-light); color: #9C3B32; }
+.pill-red .pill-dot { background: var(--red); }
+.pill-slate { background: #EEF1F5; color: var(--slate); }
+.pill-slate .pill-dot { background: var(--slate-light); }
+
+.priority-tag { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 5px; }
+.priority-high { background: var(--red-light); color: #9C3B32; }
+.priority-med { background: var(--gold-light); color: #8A6221; }
+.priority-low { background: #EEF1F5; color: var(--slate); }
+
+/* ===== Milestone timeline ===== */
+.milestone-row { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.milestone-row:last-child { border-bottom: none; }
+.milestone-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.milestone-name { font-weight: 600; font-size: 13.5px; color: var(--navy); }
+.milestone-dates { font-size: 12px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; }
+.milestone-track { height: 6px; background: #EAE7DE; border-radius: 4px; overflow: hidden; position: relative; }
+.milestone-fill { height: 100%; border-radius: 4px; }
+
+/* ===== Budget ===== */
+.budget-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.budget-stat { padding: 12px 14px; background: var(--off-white); border-radius: 8px; }
+.budget-stat .label { font-size: 10.5px; text-transform: uppercase; color: var(--slate-light); font-weight: 700; margin-bottom: 4px; }
+.budget-stat .value { font-size: 17px; font-weight: 800; color: var(--navy); font-family: 'IBM Plex Mono', monospace; }
+
+.chart-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 14px; height: 200px; padding: 10px 4px 0; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+.bar-stack { width: 100%; max-width: 34px; display: flex; flex-direction: column-reverse; height: 100%; justify-content: flex-start; border-radius: 4px 4px 0 0; overflow: hidden; }
+.bar-actual { background: var(--teal); }
+.bar-forecast { background: #D8CBA8; }
+.bar-label { font-size: 10px; color: var(--ink-soft); text-align: center; line-height: 1.3; font-weight: 600; }
+.bar-value { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--slate-light); }
+.chart-legend { display: flex; gap: 16px; margin-top: 12px; justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-soft); font-weight: 600; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+.donut-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.donut {
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.donut-hole {
+  width: 92px; height: 92px;
+  background: var(--card);
+  border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-hole .pct { font-size: 20px; font-weight: 800; color: var(--navy); font-family: 'IBM Plex Mono', monospace; }
+.donut-hole .lbl { font-size: 9.5px; color: var(--slate-light); font-weight: 700; text-transform: uppercase; text-align: center; }
+
+.insight-box {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: var(--teal-light);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #244840;
+}
+
+/* ===== Task filters ===== */
+.filter-row { display: flex; gap: 8px; padding: 14px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+.filter-chip {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 13px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-chip:hover { border-color: var(--teal); color: var(--teal); }
+.filter-chip.active { background: var(--navy); color: white; border-color: var(--navy); }
+.search-input {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--off-white);
+  width: 200px;
+  outline: none;
+}
+.search-input:focus { border-color: var(--teal); }
+
+.task-check {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.task-check.checked { background: var(--teal); border-color: var(--teal); }
+.task-check.checked::after { content: "✓"; color: white; font-size: 11px; font-weight: 900; }
+.task-row.completed td { opacity: 0.42; text-decoration: line-through; }
+.task-title-cell { display: flex; align-items: center; gap: 12px; }
+
+/* ===== Contacts ===== */
+.contacts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 20px; }
+.contact-card {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.contact-card:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+.contact-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.contact-name { font-weight: 700; font-size: 13.5px; color: var(--navy); }
+.contact-role { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
+.contact-company { font-size: 12px; color: var(--slate-light); font-weight: 600; margin-bottom: 10px; }
+.contact-meta { font-size: 11.5px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+.contact-meta .mono { color: var(--slate); }
+.contact-btn {
+  width: 100%;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 7px;
+  border-radius: 6px;
+  border: 1px solid var(--teal);
+  background: var(--teal-light);
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.contact-btn:hover { background: var(--teal); color: white; }
+
+/* ===== Risk matrix ===== */
+.risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px; }
+.risk-card { border: 1px solid var(--border); border-radius: 9px; padding: 14px 16px; }
+.risk-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+.risk-title { font-weight: 600; font-size: 13.5px; color: var(--navy); line-height: 1.4; }
+.risk-meta-row { display: flex; gap: 14px; margin: 8px 0; flex-wrap: wrap; }
+.risk-meta { font-size: 11px; color: var(--ink-soft); }
+.risk-meta strong { color: var(--ink); }
+.risk-mitigation { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; padding-top: 8px; border-top: 1px dashed var(--border); margin-top: 8px; }
+
+/* ===== Activity feed ===== */
+.feed-item { display: flex; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--border); }
+.feed-item:last-child { border-bottom: none; }
+.feed-time { font-size: 11px; color: var(--slate-light); font-family: 'IBM Plex Mono', monospace; width: 52px; flex-shrink: 0; padding-top: 1px; }
+.feed-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.feed-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; }
+.feed-content { flex: 1; }
+.feed-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--teal); margin-bottom: 2px; }
+.feed-desc { font-size: 13px; color: var(--ink); line-height: 1.5; }
+.feed-area { font-size: 11.5px; color: var(--slate-light); margin-top: 2px; }
+
+/* ===== Decision center ===== */
+.decision-card {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.decision-card:last-child { margin-bottom: 0; }
+.decision-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.decision-title { font-weight: 700; font-size: 14px; color: var(--navy); }
+.decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.decision-field { font-size: 12px; }
+.decision-field .k { color: var(--slate-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; font-size: 10px; margin-bottom: 3px; }
+.decision-field .v { color: var(--ink); line-height: 1.5; }
+.decision-why { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 4px; }
+
+/* ===== Drawer ===== */
+.drawer-overlay {
+  position: fixed; inset: 0;
+  background: rgba(18,33,58,0.35);
+  display: none;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+.drawer-overlay.open { display: block; }
+.drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: 380px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--card);
+  z-index: 101;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 30px rgba(18,33,58,0.15);
+}
+.drawer.open { transform: translateX(0); }
+.drawer-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.drawer-header h3 { font-family: Georgia, serif; font-size: 17px; color: var(--navy); line-height: 1.4; }
+.drawer-close { background: none; border: none; cursor: pointer; color: var(--slate-light); font-size: 20px; line-height: 1; padding: 0 4px; }
+.drawer-body { padding: 20px; overflow-y: auto; flex: 1; }
+.drawer-field { margin-bottom: 16px; }
+.drawer-field .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--slate-light); font-weight: 700; margin-bottom: 5px; }
+.drawer-field .v { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+.drawer-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+.drawer-btn {
+  flex: 1;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--off-white);
+  color: var(--navy);
+  cursor: pointer;
+}
+.drawer-btn.primary { background: var(--teal); border-color: var(--teal); color: white; }
+.drawer-btn:hover { opacity: 0.85; }
+
+/* elevation signature element */
+.elevation-strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  margin-left: auto;
+}
+.elevation-bldg { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.elevation-bar-track { width: 20px; height: 32px; background: #EAE7DE; border-radius: 3px 3px 0 0; overflow: hidden; display: flex; align-items: flex-end; }
+.elevation-bar-fill { width: 100%; border-radius: 2px 2px 0 0; }
+.elevation-lbl { font-size: 9px; font-weight: 700; color: var(--slate-light); }
+
+/* section anchor offset for sticky nav feel */
+.section-anchor { scroll-margin-top: 20px; }
+
+/* utility */
+.hidden { display: none !important; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .brief-grid, .two-col, .chart-row { grid-template-columns: 1fr; }
+  .contacts-grid, .risk-grid { grid-template-columns: 1fr; }
+  .budget-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- LEFT RAIL -->
+  <nav class="rail" id="rail">
+    <div class="rail-logo">F</div>
+    <button class="rail-btn active" data-section="overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Overview
+    </button>
+    <button class="rail-btn" data-section="schedule">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      Schedule
+    </button>
+    <button class="rail-btn" data-section="budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Budget
+    </button>
+    <button class="rail-btn" data-section="tasks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Tasks
+    </button>
+    <button class="rail-btn" data-section="subs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Subs
+    </button>
+    <button class="rail-btn" data-section="rfis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      RFIs
+    </button>
+    <button class="rail-btn" data-section="cos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Change Orders
+    </button>
+    <button class="rail-btn" data-section="inspections">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Inspections
+    </button>
+    <button class="rail-btn" data-section="risks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Risks
+    </button>
+    <button class="rail-btn" data-section="brief">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Daily Brief
+    </button>
+    <div class="rail-spacer"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-top">
+        <div>
+          <div class="header-title-row">
+            <h1>Meridian Heights Residences</h1>
+            <span class="badge badge-atrisk"><span class="badge-dot"></span>At Risk, Recoverable</span>
+          </div>
+          <div class="header-meta">
+            <span>Charlotte, NC</span>
+            <span><strong>286 units</strong> · 4 buildings</span>
+            <span>Phase: <strong>Structural / MEP Rough-In</strong></span>
+            <span>Updated <strong>Aug 9, 2026, 6:45 AM</strong></span>
+          </div>
+        </div>
+
+        <div class="header-stats">
+          <div class="header-stat">
+            <div class="label">Project Value</div>
+            <div class="value">$68.4M</div>
+          </div>
+          <div class="header-stat">
+            <div class="label">Target Completion</div>
+            <div class="value small">Oct 2027</div>
+          </div>
+          <div class="header-stat">
+            <div class="label">Next Milestone</div>
+            <div class="value small">18 days</div>
+          </div>
+          <div class="health-block">
+            <div>
+              <div class="health-sub-label" style="text-align:right; margin-bottom:4px;">Project Health</div>
+              <div class="health-ring" style="background: conic-gradient(var(--gold) 0% 82%, #EAE7DE 82% 100%);">
+                <div class="health-ring-inner">
+                  <div class="num">82</div>
+                  <div class="denom">/ 100</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="health-breakdown">
+        <div class="health-item">
+          <div class="health-item-label"><span>Schedule</span><span class="mono">74</span></div>
+          <div class="health-item-bar"><div class="health-item-fill" style="width:74%; background:var(--gold);"></div></div>
+        </div>
+        <div class="health-item">
+          <div class="health-item-label"><span>Budget</span><span class="mono">88</span></div>
+          <div class="health-item-bar"><div class="health-item-fill" style="width:88%; background:var(--green);"></div></div>
+        </div>
+        <div class="health-item">
+          <div class="health-item-label"><span>Safety</span><span class="mono">96</span></div>
+          <div class="health-item-bar"><div class="health-item-fill" style="width:96%; background:var(--green);"></div></div>
+        </div>
+        <div class="health-item">
+          <div class="health-item-label"><span>Documentation</span><span class="mono">71</span></div>
+          <div class="health-item-bar"><div class="health-item-fill" style="width:71%; background:var(--gold);"></div></div>
+        </div>
+        <div class="health-item">
+          <div class="health-item-label"><span>Sub Performance</span><span class="mono">79</span></div>
+          <div class="health-item-bar"><div class="health-item-fill" style="width:79%; background:var(--gold);"></div></div>
+        </div>
+
+        <div class="elevation-strip" title="Building completion by structure">
+          <div class="elevation-bldg">
+            <div class="elevation-bar-track"><div class="elevation-bar-fill" style="height:88%; background:var(--green);"></div></div>
+            <div class="elevation-lbl">A</div>
+          </div>
+          <div class="elevation-bldg">
+            <div class="elevation-bar-track"><div class="elevation-bar-fill" style="height:52%; background:var(--gold);"></div></div>
+            <div class="elevation-lbl">B</div>
+          </div>
+          <div class="elevation-bldg">
+            <div class="elevation-bar-track"><div class="elevation-bar-fill" style="height:63%; background:var(--gold);"></div></div>
+            <div class="elevation-lbl">C</div>
+          </div>
+          <div class="elevation-bldg">
+            <div class="elevation-bar-track"><div class="elevation-bar-fill" style="height:41%; background:var(--slate-light);"></div></div>
+            <div class="elevation-lbl">D</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- OVERVIEW SECTION -->
+    <section class="section-anchor" id="overview">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Schedule Variance</span><span class="kpi-trend trend-up-bad">+9d</span></div>
+          <div class="kpi-value">+9 days</div>
+          <div class="kpi-note">Structural steel delivery delay affecting Building B sequence.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Budget Used</span><span class="kpi-trend trend-flat">61%</span></div>
+          <div class="kpi-value">$41.7M</div>
+          <div class="kpi-note">Of $68.4M revised budget. Tracking close to planned burn rate.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Forecasted Margin</span><span class="kpi-trend trend-up-good">Stable</span></div>
+          <div class="kpi-value">14.2%</div>
+          <div class="kpi-note">Holding steady, MEP change exposure is the main threat.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Open RFIs</span><span class="kpi-trend trend-up-bad">2 late</span></div>
+          <div class="kpi-value">4</div>
+          <div class="kpi-note">RFI-104 is 11 days over SLA and blocking structural sign-off.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Pending Change Orders</span><span class="kpi-trend trend-flat">3</span></div>
+          <div class="kpi-value">$284K</div>
+          <div class="kpi-note">Owner approval outstanding on CO-017 electrical reroute.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Upcoming Inspections</span><span class="kpi-trend trend-flat">5</span></div>
+          <div class="kpi-value">5</div>
+          <div class="kpi-note">Next 14 days, includes fire marshal pre-inspection walkthrough.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Critical Blockers</span><span class="kpi-trend trend-up-bad">2</span></div>
+          <div class="kpi-value">2</div>
+          <div class="kpi-note">Steel delivery and RFI-104 are both on the critical path.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Contingency Remaining</span><span class="kpi-trend trend-up-good">76%</span></div>
+          <div class="kpi-value">$1.53M</div>
+          <div class="kpi-note">Healthy, but monitor MEP change exposure closely this month.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DAILY BRIEF -->
+    <section class="section-anchor" id="brief">
+      <div class="section-title">Daily Project Brief</div>
+      <div class="card brief-card">
+        <div class="card-body">
+          <div class="brief-text">
+            <strong>Building A remains on track</strong>, but Building B is trending nine days behind due to delayed structural steel delivery and unresolved RFI-104. Buildings C and D are progressing within one day of forecast. The highest-value action today is to resolve the structural beam detail conflict and confirm the revised crane schedule with the steel subcontractor before Thursday's mobilization window closes.
+          </div>
+          <div class="brief-grid">
+            <div>
+              <div class="brief-list-title">Top Priorities Today</div>
+              <ul class="brief-list">
+                <li>Resolve RFI-104 structural beam detail with structural engineer</li>
+                <li>Confirm revised crane schedule with steel subcontractor</li>
+                <li>Approve or reject CO-017 electrical reroute pricing</li>
+              </ul>
+            </div>
+            <div>
+              <div class="brief-list-title">Risks to Monitor</div>
+              <ul class="brief-list">
+                <li>Steel delivery delay cascading into Building B MEP start</li>
+                <li>MEP change exposure reducing available contingency</li>
+                <li>Fire marshal pre-inspection needs earlier site coordination</li>
+              </ul>
+            </div>
+          </div>
+          <div class="brief-list-title">Decisions Needed</div>
+          <ul class="brief-list" style="margin-bottom:16px;">
+            <li>Approve alternate steel delivery sequence for Building B, due in 2 days</li>
+            <li>Confirm crane schedule change with steel subcontractor, due tomorrow</li>
+          </ul>
+          <div class="brief-list-title">Recommended Next Action</div>
+          <p style="font-size:13px; color:var(--ink-soft); margin-bottom:18px;">Schedule a 15-minute call with the structural engineer this morning to close out RFI-104. This single item is holding up both the crane schedule confirmation and Building B's MEP rough-in start date.</p>
+
+          <div class="ai-btn-row">
+            <button class="ai-btn" onclick="runAI('owner')">Generate owner update</button>
+            <button class="ai-btn" onclick="runAI('risks')">Summarize risks</button>
+            <button class="ai-btn" onclick="runAI('followup')">Draft subcontractor follow-up</button>
+            <button class="ai-btn" onclick="runAI('exec')">Prepare weekly executive brief</button>
+          </div>
+          <div class="ai-output" id="aiOutput">
+            <div class="ai-output-label"><span class="ai-pulse"></span><span id="aiOutputLabel">Generated output</span></div>
+            <div id="aiOutputText"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section class="section-anchor" id="schedule">
+      <div class="section-title">Schedule Health</div>
+      <div class="card">
+        <div class="card-header">
+          <h3>Major Milestones</h3>
+          <span class="pill pill-gold"><span class="pill-dot"></span>2 at risk</span>
+        </div>
+        <div class="card-body no-pad" id="milestoneList"></div>
+      </div>
+    </section>
+
+    <!-- BUDGET -->
+    <section class="section-anchor" id="budget">
+      <div class="section-title">Budget and Financial Health</div>
+      <div class="card">
+        <div class="card-body">
+          <div class="budget-summary-grid">
+            <div class="budget-stat"><div class="label">Original Budget</div><div class="value">$64.1M</div></div>
+            <div class="budget-stat"><div class="label">Approved Changes</div><div class="value">$4.3M</div></div>
+            <div class="budget-stat"><div class="label">Revised Budget</div><div class="value">$68.4M</div></div>
+            <div class="budget-stat"><div class="label">Committed Cost</div><div class="value">$52.1M</div></div>
+            <div class="budget-stat"><div class="label">Actual Cost to Date</div><div class="value">$41.7M</div></div>
+            <div class="budget-stat"><div class="label">Forecast at Completion</div><div class="value">$68.9M</div></div>
+            <div class="budget-stat"><div class="label">Contingency Remaining</div><div class="value">$1.53M</div></div>
+            <div class="budget-stat"><div class="label">Forecast Variance</div><div class="value" style="color:var(--gold);">+$0.5M</div></div>
+          </div>
+
+          <div class="chart-row">
+            <div>
+              <div class="brief-list-title">Cost to Date vs. Forecast by Category</div>
+              <div class="bar-chart" id="budgetChart"></div>
+              <div class="chart-legend">
+                <div class="legend-item"><span class="legend-swatch" style="background:var(--teal);"></span>Actual to date</div>
+                <div class="legend-item"><span class="legend-swatch" style="background:#D8CBA8;"></span>Forecast remaining</div>
+              </div>
+            </div>
+            <div class="donut-wrap">
+              <div class="brief-list-title" style="align-self:flex-start;">Contingency Drawdown</div>
+              <div class="donut" style="background: conic-gradient(var(--gold) 0% 24%, #EAE7DE 24% 100%); margin-top:10px;">
+                <div class="donut-hole">
+                  <div class="pct">24%</div>
+                  <div class="lbl">Drawn</div>
+                </div>
+              </div>
+              <div style="font-size:11.5px; color:var(--ink-soft); margin-top:10px; text-align:center;">$470K drawn of $2M contingency</div>
+            </div>
+          </div>
+
+          <div class="insight-box">
+            Contingency remains healthy overall, but MEP change exposure is increasing and should be reviewed before approving non-critical scope changes. Current drawdown pace supports the project through completion if no major new change orders are approved this quarter.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="section-anchor" id="tasks">
+      <div class="section-title">Task and Action Center</div>
+      <div class="card">
+        <div class="filter-row">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="overdue">Overdue</button>
+          <button class="filter-chip" data-filter="week">Due This Week</button>
+          <button class="filter-chip" data-filter="approvals">My Approvals</button>
+          <button class="filter-chip" data-filter="high">High Priority</button>
+          <button class="filter-chip" data-filter="blocked">Blocked</button>
+          <input class="search-input" type="text" placeholder="Search tasks..." id="taskSearch" oninput="renderTasks()">
+        </div>
+        <div class="card-body no-pad">
+          <table>
+            <thead>
+              <tr><th style="width:34%">Task</th><th>Owner</th><th>Due</th><th>Area</th><th>Priority</th><th>Status</th></tr>
+            </thead>
+            <tbody id="taskTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUBS / CONTACTS -->
+    <section class="section-anchor" id="subs">
+      <div class="section-title">Contacts and Subcontractor Directory</div>
+      <div class="card">
+        <div class="contacts-grid" id="contactsGrid"></div>
+      </div>
+    </section>
+
+    <!-- RFIS -->
+    <section class="section-anchor" id="rfis">
+      <div class="section-title">RFI Tracker <span class="count-pill">4 open</span></div>
+      <div class="card">
+        <div class="card-body" style="padding: 16px 20px; border-bottom:1px solid var(--border); display:flex; gap:26px; flex-wrap:wrap;">
+          <div><div class="health-sub-label">Total Open</div><div class="td-mono td-strong" style="font-size:16px;">4</div></div>
+          <div><div class="health-sub-label">Avg Days Open</div><div class="td-mono td-strong" style="font-size:16px;">14.2</div></div>
+          <div><div class="health-sub-label">Over SLA</div><div class="td-mono td-strong" style="font-size:16px; color:var(--red);">2</div></div>
+          <div><div class="health-sub-label">With Schedule Impact</div><div class="td-mono td-strong" style="font-size:16px;">3</div></div>
+        </div>
+        <div class="card-body no-pad">
+          <table>
+            <thead>
+              <tr><th>RFI</th><th>Discipline</th><th>Assigned To</th><th>Days Open</th><th>Due</th><th>Status</th><th>Impact</th></tr>
+            </thead>
+            <tbody id="rfiTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANGE ORDERS -->
+    <section class="section-anchor" id="cos">
+      <div class="section-title">Change Order Tracker</div>
+      <div class="card">
+        <div class="card-body" style="padding: 16px 20px; border-bottom:1px solid var(--border); display:flex; gap:26px; flex-wrap:wrap;">
+          <div><div class="health-sub-label">Pending Value</div><div class="td-mono td-strong" style="font-size:16px;">$284K</div></div>
+          <div><div class="health-sub-label">Approved Value</div><div class="td-mono td-strong" style="font-size:16px;">$4.3M</div></div>
+          <div><div class="health-sub-label">Forecast Exposure</div><div class="td-mono td-strong" style="font-size:16px; color:var(--gold);">$410K</div></div>
+          <div><div class="health-sub-label">Contingency Impact</div><div class="td-mono td-strong" style="font-size:16px;">24%</div></div>
+        </div>
+        <div class="card-body no-pad">
+          <table>
+            <thead>
+              <tr><th>CO</th><th>Description</th><th>Amount</th><th>Status</th><th>Approval</th><th>Impact</th></tr>
+            </thead>
+            <tbody id="coTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSPECTIONS -->
+    <section class="section-anchor" id="inspections">
+      <div class="section-title">Inspections and Permitting</div>
+      <div class="card">
+        <div class="card-body no-pad">
+          <table>
+            <thead>
+              <tr><th>Inspection</th><th>Area</th><th>Scheduled</th><th>Responsible</th><th>Readiness</th><th>Risk</th></tr>
+            </thead>
+            <tbody id="inspectionTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- RISKS -->
+    <section class="section-anchor" id="risks">
+      <div class="section-title">Risk and Blocker Register</div>
+      <div class="card">
+        <div class="filter-row">
+          <button class="filter-chip active" data-riskfilter="all">All Severity</button>
+          <button class="filter-chip" data-riskfilter="high">High</button>
+          <button class="filter-chip" data-riskfilter="medium">Medium</button>
+          <button class="filter-chip" data-riskfilter="low">Low</button>
+        </div>
+        <div class="risk-grid" id="riskGrid"></div>
+      </div>
+    </section>
+
+    <!-- DECISIONS -->
+    <section class="section-anchor" id="decisions">
+      <div class="section-title">Decisions Needed</div>
+      <div id="decisionList"></div>
+    </section>
+
+    <!-- ACTIVITY FEED -->
+    <section class="section-anchor" id="activity">
+      <div class="section-title">Daily Activity Feed</div>
+      <div class="card">
+        <div class="card-body no-pad" id="feedList"></div>
+      </div>
+    </section>
+
+    <footer style="padding: 30px 0 10px; text-align:center; font-size:12px; color:var(--slate-light);">
+      Foreman is a frontend portfolio demo. All project data is fictional. No live systems are connected.
+    </footer>
+  </main>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h3 id="drawerTitle">Detail</h3>
+    <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer" id="drawerFooter"></div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+
+const milestones = [
+  { name: "Foundation Complete", planned: "Apr 18, 2026", forecast: "Apr 18, 2026", status: "ontrack", variance: 0, pct: 100 },
+  { name: "Building A Framing Complete", planned: "Jun 30, 2026", forecast: "Jun 28, 2026", status: "ontrack", variance: -2, pct: 100 },
+  { name: "Building B Structural Steel Complete", planned: "Aug 22, 2026", forecast: "Aug 31, 2026", status: "atrisk", variance: 9, pct: 62 },
+  { name: "MEP Rough-In Start (All Buildings)", planned: "Sep 5, 2026", forecast: "Sep 12, 2026", status: "watch", variance: 7, pct: 30 },
+  { name: "Dry-In Complete", planned: "Dec 1, 2026", forecast: "Dec 6, 2026", status: "watch", variance: 5, pct: 8 },
+  { name: "Elevator Shaft Inspection", planned: "Feb 10, 2027", forecast: "Feb 10, 2027", status: "ontrack", variance: 0, pct: 0 },
+  { name: "Certificate of Occupancy", planned: "Oct 1, 2027", forecast: "Oct 8, 2027", status: "watch", variance: 7, pct: 0 }
+];
+
+const budgetCategories = [
+  { name: "Sitework", actual: 4.1, forecast: 4.3 },
+  { name: "Concrete", actual: 9.8, forecast: 10.1 },
+  { name: "Framing", actual: 8.2, forecast: 9.4 },
+  { name: "MEP", actual: 6.9, forecast: 12.8 },
+  { name: "Exterior", actual: 3.1, forecast: 9.6 },
+  { name: "Interiors", actual: 1.2, forecast: 13.9 },
+  { name: "Gen. Conditions", actual: 6.9, forecast: 8.8 },
+  { name: "Contingency", actual: 0.47, forecast: 2.0 }
+];
+
+const tasks = [
+  { title: "Approve revised MEP coordination drawing", owner: "You (PM)", due: "Today", area: "MEP", priority: "high", status: "In Review", tags: ["approvals","high","week"], related: "Related to MEP Rough-In milestone", completed: false },
+  { title: "Confirm crane availability for Building B", owner: "You (PM)", due: "Tomorrow", area: "Schedule", priority: "high", status: "Pending", tags: ["high","week","blocked"], related: "Blocked by RFI-104 resolution", completed: false },
+  { title: "Review CO-017 electrical reroute pricing", owner: "You (PM)", due: "Aug 11", area: "Change Orders", priority: "high", status: "Pending", tags: ["approvals","high","week"], related: "Related to CO-017", completed: false },
+  { title: "Schedule fire marshal pre-inspection", owner: "Sarah Voss", due: "Aug 12", area: "Inspections", priority: "medium", status: "Not Started", tags: ["week"], related: "Related to fire marshal inspection", completed: false },
+  { title: "Send owner update", owner: "You (PM)", due: "Aug 13", area: "Communication", priority: "medium", status: "Not Started", tags: ["week"], related: "Weekly owner report", completed: false },
+  { title: "Resolve RFI-104 structural beam detail", owner: "You (PM)", due: "Overdue 11d", area: "RFIs", priority: "high", status: "Overdue", tags: ["overdue","high","blocked"], related: "Blocking Building B steel sequence", completed: false },
+  { title: "Verify stormwater compliance documentation", owner: "Marcus Reyes", due: "Aug 14", area: "Permitting", priority: "low", status: "In Progress", tags: ["week"], related: "Related to stormwater inspection", completed: false },
+  { title: "Log weekly manpower report from framing sub", owner: "Dana Whitfield", due: "Overdue 2d", area: "Subcontractors", priority: "medium", status: "Overdue", tags: ["overdue"], related: "Related to framing subcontractor", completed: false },
+  { title: "Close out RFI-117 plumbing chase clearance", owner: "You (PM)", due: "Aug 16", area: "RFIs", priority: "medium", status: "In Review", tags: ["week"], related: "Related to RFI-117", completed: false },
+  { title: "Confirm elevator vendor lead time update", owner: "You (PM)", due: "Aug 20", area: "Procurement", priority: "low", status: "Not Started", tags: [], related: "Related to elevator vendor coordination", completed: true }
+];
+
+const contacts = [
+  { name: "Patricia Nguyen", role: "Owner Representative", company: "Meridian Capital Partners", phone: "(704) 555-0142", email: "p.nguyen@meridiancp.com", status: "ontrack", lastContact: "Aug 7, 2026", notes: "Requested weekly update by Friday EOD." },
+  { name: "David Alcott", role: "Architect of Record", company: "Alcott + Reyes Studio", phone: "(704) 555-0198", email: "dalcott@arstudio.com", status: "followup", lastContact: "Aug 5, 2026", notes: "Owes response on RFI-123 window flashing." },
+  { name: "Renee Foster", role: "Civil Engineer", company: "Foster Civil Group", phone: "(704) 555-0177", email: "rfoster@fostercivil.com", status: "ontrack", lastContact: "Aug 6, 2026", notes: "Stormwater docs on track for review." },
+  { name: "Ken Ishida", role: "Structural Engineer", company: "Ishida Structural Engineering", phone: "(704) 555-0165", email: "kishida@ise-eng.com", status: "critical", lastContact: "Aug 8, 2026", notes: "Holding RFI-104 beam detail, 11 days overdue." },
+  { name: "You", role: "Superintendent / GC PM", company: "Site Team", phone: "(704) 555-0101", email: "pm@meridianheights.build", status: "ontrack", lastContact: "Today", notes: "On site daily." },
+  { name: "Marcus Reyes", role: "Superintendent", company: "General Contractor Field Team", phone: "(704) 555-0110", email: "mreyes@gcfield.com", status: "ontrack", lastContact: "Today", notes: "Running daily standups on site." },
+  { name: "Bill Tran", role: "Electrical Subcontractor", company: "Tran Electric Co.", phone: "(704) 555-0221", email: "btran@tranelectric.com", status: "followup", lastContact: "Aug 6, 2026", notes: "CO-017 pricing submitted, awaiting owner decision." },
+  { name: "Lucia Marin", role: "Plumbing Subcontractor", company: "Marin Mechanical", phone: "(704) 555-0233", email: "lmarin@marinmech.com", status: "ontrack", lastContact: "Aug 4, 2026", notes: "On schedule for Building A rough-in." },
+  { name: "Carl Owusu", role: "HVAC Subcontractor", company: "Owusu Climate Systems", phone: "(704) 555-0244", email: "cowusu@owusuclimate.com", status: "ontrack", lastContact: "Aug 3, 2026", notes: "Equipment delivery confirmed for September." },
+  { name: "Greg Halvorsen", role: "Framing Subcontractor", company: "Halvorsen Framing LLC", phone: "(704) 555-0256", email: "ghalvorsen@halframe.com", status: "atrisk", lastContact: "Aug 8, 2026", notes: "Manpower report late two days running." },
+  { name: "Alicia Ford", role: "Fire Protection Subcontractor", company: "Ford Fire Systems", phone: "(704) 555-0267", email: "aford@fordfire.com", status: "followup", lastContact: "Aug 5, 2026", notes: "Needs earlier coordination for marshal walkthrough." },
+  { name: "Tom Bellweather", role: "Elevator Vendor", company: "Summit Elevator Corp", phone: "(704) 555-0278", email: "tbell@summitelev.com", status: "followup", lastContact: "Jul 30, 2026", notes: "Lead time update pending, may affect turnover." },
+  { name: "Janice Cho", role: "Permitting Contact", company: "City of Charlotte Building Dept", phone: "(704) 555-0289", email: "jcho@charlottenc.gov", status: "ontrack", lastContact: "Aug 1, 2026", notes: "Stormwater permit review in progress." },
+];
+
+const rfis = [
+  { number: "RFI-104", title: "Structural beam detail conflict at grid B4", discipline: "Structural", submittedBy: "Framing Sub", assignedTo: "Ken Ishida", daysOpen: 22, due: "Overdue 11d", status: "overdue", scheduleImpact: "High", costImpact: "$0" },
+  { number: "RFI-117", title: "Plumbing chase clearance in unit type C", discipline: "Plumbing", submittedBy: "Marin Mechanical", assignedTo: "David Alcott", daysOpen: 9, due: "Aug 16", status: "open", scheduleImpact: "Low", costImpact: "$0" },
+  { number: "RFI-123", title: "Window flashing detail at Building C parapet", discipline: "Architectural", submittedBy: "Superintendent", assignedTo: "David Alcott", daysOpen: 15, due: "Overdue 3d", status: "overdue", scheduleImpact: "Medium", costImpact: "$8,400" },
+  { number: "RFI-128", title: "Electrical room equipment spacing clearance", discipline: "Electrical", submittedBy: "Tran Electric", assignedTo: "Bill Tran", daysOpen: 4, due: "Aug 18", status: "open", scheduleImpact: "Low", costImpact: "$0" }
+];
+
+const changeOrders = [
+  { number: "CO-014", description: "Additional storm drain relocation at south entrance", amount: "$62,400", status: "approved", submitted: "Jul 12, 2026", approvalNeeded: false, budgetImpact: "Approved, included in revised budget", scheduleImpact: "None" },
+  { number: "CO-016", description: "Upgraded lobby finish package per owner request", amount: "$118,000", status: "approved", submitted: "Jul 22, 2026", approvalNeeded: false, budgetImpact: "Approved, included in revised budget", scheduleImpact: "None" },
+  { number: "CO-017", description: "Electrical reroute around relocated transformer pad", amount: "$96,200", status: "review", submitted: "Aug 2, 2026", approvalNeeded: true, budgetImpact: "Pending owner decision", scheduleImpact: "3 day delay if not approved by Aug 12" },
+  { number: "CO-018", description: "Additional waterproofing at Building D podium slab", amount: "$142,800", status: "submitted", submitted: "Aug 5, 2026", approvalNeeded: true, budgetImpact: "Pending review", scheduleImpact: "None expected" },
+  { number: "CO-019", description: "Revised elevator cab finish per updated spec", amount: "$45,000", status: "draft", submitted: "Not yet submitted", approvalNeeded: false, budgetImpact: "Estimate only", scheduleImpact: "None expected" }
+];
+
+const inspections = [
+  { name: "Building A Framing Inspection", area: "Building A", scheduled: "Aug 13, 2026", responsible: "Marcus Reyes", readiness: 92, risk: "low", notes: "On track, minor punch items remain" },
+  { name: "Fire Marshal Pre-Inspection", area: "Sitewide", scheduled: "Aug 19, 2026", responsible: "Alicia Ford", risk: "medium", readiness: 68, notes: "Needs earlier coordination, access routes not finalized" },
+  { name: "Elevator Shaft Inspection", area: "Building A", scheduled: "Sep 2, 2026", responsible: "Tom Bellweather", readiness: 55, risk: "medium", notes: "Pending vendor lead time confirmation" },
+  { name: "Stormwater Compliance Inspection", area: "Sitewide", scheduled: "Aug 15, 2026", responsible: "Renee Foster", readiness: 88, risk: "low", notes: "Documentation nearly complete" },
+  { name: "Temporary Power Inspection", area: "Building B", scheduled: "Aug 21, 2026", responsible: "Bill Tran", readiness: 74, risk: "low", notes: "Standard scheduling, no blockers identified" }
+];
+
+const risks = [
+  { title: "Steel delivery delay affects Building B structural sequence", category: "Schedule", severity: "high", probability: "High", owner: "You (PM)", mitigation: "Working alternate delivery sequence with steel sub, evaluating partial crane mobilization to hold overall timeline.", related: "Milestone: Building B Structural Steel", status: "Active" },
+  { title: "RFI-104 unresolved creates inspection risk", category: "Design", severity: "high", probability: "High", owner: "Ken Ishida", mitigation: "Escalated to structural engineer for same-week response, follow-up call scheduled this morning.", related: "RFI-104", status: "Active" },
+  { title: "MEP change exposure may reduce contingency", category: "Budget", severity: "medium", probability: "Medium", owner: "You (PM)", mitigation: "Holding non-critical MEP change orders until Q3 budget review, tracking exposure weekly.", related: "Budget: MEP Category", status: "Monitoring" },
+  { title: "Fire marshal inspection requires earlier coordination", category: "Permitting", severity: "medium", probability: "Medium", owner: "Alicia Ford", mitigation: "Scheduling walkthrough with fire marshal's office two weeks ahead of formal inspection.", related: "Fire Marshal Pre-Inspection", status: "Active" },
+  { title: "Elevator lead time may affect final turnover", category: "Procurement", severity: "medium", probability: "Low", owner: "Tom Bellweather", mitigation: "Requested updated lead time confirmation, evaluating expedited shipping options if needed.", related: "Elevator Shaft Inspection", status: "Monitoring" },
+  { title: "Framing subcontractor manpower reporting inconsistent", category: "Subcontractor", severity: "low", probability: "Medium", owner: "Greg Halvorsen", mitigation: "Requested daily manpower logs going forward, will review at next site meeting.", related: "Building B Framing", status: "Active" }
+];
+
+const activityFeed = [
+  { time: "6:45 AM", type: "Daily Log", area: "Sitewide", desc: "Daily log submitted for Aug 8, weather clear, 34 workers on site.", related: "Daily Log" },
+  { time: "7:12 AM", type: "RFI", area: "Structural", desc: "RFI-104 marked overdue, now 11 days past SLA deadline.", related: "RFI-104" },
+  { time: "8:30 AM", type: "Subcontractor", area: "Framing", desc: "Halvorsen Framing updated manpower plan for next two weeks.", related: "Building B" },
+  { time: "9:05 AM", type: "Inspection", area: "Sitewide", desc: "Fire marshal pre-inspection scheduled for Aug 19.", related: "Fire Marshal Pre-Inspection" },
+  { time: "10:22 AM", type: "Change Order", area: "Electrical", desc: "CO-017 electrical reroute pricing submitted for owner review.", related: "CO-017" },
+  { time: "11:40 AM", type: "Weather", area: "Sitewide", desc: "No weather delay recorded, clear conditions expected through Friday.", related: "Daily Log" },
+  { time: "1:15 PM", type: "Photo", area: "Building A", desc: "Progress photos uploaded for third floor framing completion.", related: "Building A" },
+  { time: "2:50 PM", type: "Decision", area: "Schedule", desc: "Owner decision requested on alternate steel delivery sequence.", related: "Building B Steel" }
+];
+
+const decisions = [
+  {
+    title: "Approve alternate steel delivery sequence for Building B",
+    why: "Original delivery window missed due to fabricator delay. An alternate sequence keeps the overall schedule to a 9 day slip instead of a projected 3 week slip if left unresolved.",
+    deadline: "Aug 11, 2026",
+    recommended: "Approve alternate sequence, prioritize levels 2 through 4 first to keep MEP rough-in on a workable path.",
+    riskIfDelayed: "Every additional day of delay compounds into MEP and dry-in schedules for Building B.",
+    approver: "You (PM)",
+    status: "Needs PM Decision"
+  },
+  {
+    title: "Accept or reject CO-017 electrical reroute pricing",
+    why: "Transformer pad relocation requires an electrical reroute. Owner approval is needed before the sub can proceed without holding up rough-in.",
+    deadline: "Aug 12, 2026",
+    recommended: "Accept pricing, cost is in line with market rate and delay risk outweighs the premium.",
+    riskIfDelayed: "3 day schedule delay to Building B electrical rough-in if not approved by Aug 12.",
+    approver: "Owner Representative",
+    status: "Needs Owner Decision"
+  },
+  {
+    title: "Confirm Building B crane schedule with steel subcontractor",
+    why: "Crane mobilization window is limited and depends on the delivery sequence decision above. Needs to be locked in to avoid losing the mobilization slot.",
+    deadline: "Aug 10, 2026",
+    recommended: "Confirm as soon as delivery sequence is approved, hold current mobilization date if possible.",
+    riskIfDelayed: "Losing the current crane slot pushes remobilization out by up to 2 weeks.",
+    approver: "You (PM)",
+    status: "Waiting on Subcontractor"
+  },
+  {
+    title: "Decide whether to accelerate elevator vendor coordination",
+    why: "Vendor lead time has not been reconfirmed since initial order. Early coordination now avoids a late-stage surprise before final turnover.",
+    deadline: "Aug 20, 2026",
+    recommended: "Request written lead time confirmation this week, no acceleration needed yet.",
+    riskIfDelayed: "Low near-term risk, but could affect certificate of occupancy timeline if left until Q1 2027.",
+    approver: "You (PM)",
+    status: "Needs PM Decision"
+  }
+];
+
+const aiBriefs = {
+  owner: {
+    label: "Owner Update — Generated Draft",
+    text: `Subject: Meridian Heights Residences — Weekly Owner Update
+
+Overall project status remains at risk but recoverable. Buildings A, C, and D are tracking within one to two days of schedule. Building B is currently nine days behind due to a structural steel delivery delay, and we are actively working an alternate delivery sequence to limit further slip.
+
+Budget: Actual cost to date is $41.7M against a $68.4M revised budget, in line with planned burn rate. Forecast at completion is $68.9M, a $0.5M variance driven primarily by MEP change order exposure. Contingency remains healthy at 76% remaining.
+
+Decisions needed from your side: approval on CO-017 electrical reroute pricing ($96,200), due August 12 to avoid a schedule impact.
+
+Next milestone: Building B structural steel completion, now forecast for August 31.
+
+We will follow up with a revised schedule once the delivery sequence decision is finalized this week.`
+  },
+  risks: {
+    label: "Risk Summary — Generated Draft",
+    text: `Prioritized Risk Summary
+
+1. HIGH — Steel delivery delay (Building B). Nine day schedule impact, alternate sequence in progress. Owner: PM.
+
+2. HIGH — RFI-104 unresolved (Structural). Eleven days past SLA, blocking crane schedule confirmation. Owner: Structural Engineer, escalated.
+
+3. MEDIUM — MEP change exposure (Budget). Increasing pressure on contingency, recommend holding non-critical MEP changes through Q3 review.
+
+4. MEDIUM — Fire marshal inspection coordination (Permitting). Access routes not finalized, needs earlier walkthrough scheduling.
+
+5. MEDIUM — Elevator vendor lead time (Procurement). No confirmed update since original order, low near-term risk but worth reconfirming this week.
+
+6. LOW — Framing subcontractor manpower reporting inconsistent. Requested daily logs going forward, monitoring at next site meeting.`
+  },
+  followup: {
+    label: "Subcontractor Follow-Up — Generated Draft",
+    text: `To: Greg Halvorsen, Halvorsen Framing LLC
+Subject: Manpower Reporting — Building B
+
+Hi Greg,
+
+Following up on this week's manpower reports for Building B framing. We have not received the last two daily reports and want to make sure crew counts are staying on track given the current schedule pressure from the steel delivery delay.
+
+Could you send updated manpower numbers for the past two days along with your projected crew size through the end of August? We want to confirm framing capacity lines up with the revised structural steel sequence once it is finalized.
+
+Let me know if there is anything on our end holding up your team's progress.
+
+Thanks,
+Project Manager, Meridian Heights Residences`
+  },
+  exec: {
+    label: "Weekly Executive Brief — Generated Draft",
+    text: `MERIDIAN HEIGHTS RESIDENCES — WEEKLY EXECUTIVE BRIEF
+
+Executive Summary
+Project health score is 82 of 100, status at risk but recoverable. Buildings A, C, and D are tracking close to plan. Building B is nine days behind schedule due to a structural steel delivery delay, currently being mitigated with an alternate delivery sequence.
+
+Schedule Status
+Overall schedule health score is 74. Two milestones are flagged at risk or watch: Building B structural steel completion and MEP rough-in start. Certificate of occupancy is currently forecast seven days later than planned.
+
+Budget Status
+Budget health score is 88. Actual cost to date is $41.7M of a $68.4M revised budget. Forecast at completion is $68.9M, a $0.5M unfavorable variance driven by MEP scope. Contingency remaining is $1.53M, or 76%.
+
+Key Risks
+Steel delivery delay, unresolved structural RFI, and rising MEP change exposure are the top three risks this week. All three are being actively managed.
+
+Decisions Needed
+Owner approval required on CO-017 electrical reroute ($96,200) by August 12. PM decision required on alternate steel delivery sequence by August 11.
+
+Recommended Next Steps
+Close out RFI-104 this week to unblock the crane schedule. Hold non-critical MEP change orders until the Q3 budget review. Confirm fire marshal walkthrough scheduling two weeks ahead of the formal inspection.`
+  }
+};
+
+/* ===================== RENDER FUNCTIONS ===================== */
+
+function statusPillClass(status) {
+  const map = { ontrack: "pill-green", atrisk: "pill-gold", watch: "pill-slate", delayed: "pill-red", overdue: "pill-red", open: "pill-slate", approved: "pill-green", review: "pill-gold", submitted: "pill-slate", draft: "pill-slate", critical: "pill-red", followup: "pill-gold", high: "pill-red", medium: "pill-gold", low: "pill-slate", active: "pill-gold", monitoring: "pill-slate" };
+  return map[status] || "pill-slate";
+}
+function statusLabel(s) {
+  const map = { ontrack: "On Track", atrisk: "At Risk", watch: "Watch", delayed: "Delayed", overdue: "Overdue", open: "Open", approved: "Approved", review: "Under Review", submitted: "Submitted", draft: "Draft", critical: "Critical", followup: "Needs Follow-Up", high: "High", medium: "Medium", low: "Low" };
+  return map[s] || s;
+}
+
+function renderMilestones() {
+  const el = document.getElementById('milestoneList');
+  el.innerHTML = milestones.map(m => {
+    const fillColor = m.status === 'ontrack' ? 'var(--green)' : m.status === 'atrisk' ? 'var(--red)' : m.status === 'watch' ? 'var(--gold)' : 'var(--slate-light)';
+    return `
+    <div class="milestone-row">
+      <div class="milestone-top">
+        <span class="milestone-name">${m.name}</span>
+        <span class="pill ${statusPillClass(m.status)}"><span class="pill-dot"></span>${statusLabel(m.status)}</span>
+      </div>
+      <div class="milestone-dates">Planned ${m.planned} &nbsp;·&nbsp; Forecast ${m.forecast} &nbsp;·&nbsp; ${m.variance === 0 ? 'On schedule' : m.variance > 0 ? '+' + m.variance + ' days' : m.variance + ' days'}</div>
+      <div class="milestone-track" style="margin-top:8px;"><div class="milestone-fill" style="width:${m.pct}%; background:${fillColor};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderBudgetChart() {
+  const el = document.getElementById('budgetChart');
+  const max = Math.max(...budgetCategories.map(c => c.forecast));
+  el.innerHTML = budgetCategories.map(c => {
+    const totalH = (c.forecast / max) * 100;
+    const actualPct = (c.actual / c.forecast) * 100;
+    return `
+    <div class="bar-col">
+      <div class="bar-value">$${c.forecast}M</div>
+      <div class="bar-stack" style="height:${totalH}%;">
+        <div class="bar-actual" style="height:${actualPct}%;"></div>
+        <div class="bar-forecast" style="height:${100 - actualPct}%;"></div>
+      </div>
+      <div class="bar-label">${c.name}</div>
+    </div>`;
+  }).join('');
+}
+
+let taskFilter = 'all';
+function renderTasks() {
+  const search = document.getElementById('taskSearch').value.toLowerCase();
+  const el = document.getElementById('taskTableBody');
+  const filtered = tasks.filter(t => {
+    const matchesFilter = taskFilter === 'all' || t.tags.includes(taskFilter);
+    const matchesSearch = t.title.toLowerCase().includes(search) || t.owner.toLowerCase().includes(search) || t.area.toLowerCase().includes(search);
+    return matchesFilter && matchesSearch;
+  });
+  el.innerHTML = filtered.map((t, idx) => {
+    const realIdx = tasks.indexOf(t);
+    return `
+    <tr class="task-row ${t.completed ? 'completed' : ''}" onclick="openTaskDrawer(${realIdx})">
+      <td>
+        <div class="task-title-cell">
+          <div class="task-check ${t.completed ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTask(${realIdx})"></div>
+          <span class="td-strong">${t.title}</span>
+        </div>
+      </td>
+      <td class="td-soft">${t.owner}</td>
+      <td class="td-mono ${t.status === 'Overdue' ? 'style="color:var(--red)"' : ''}">${t.due}</td>
+      <td class="td-soft">${t.area}</td>
+      <td><span class="priority-tag priority-${t.priority}">${t.priority}</span></td>
+      <td><span class="pill ${statusPillClass(t.status.toLowerCase() === 'overdue' ? 'overdue' : 'watch')}"><span class="pill-dot"></span>${t.status}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center; color:var(--slate-light); padding:30px;">No tasks match this filter.</td></tr>`;
+}
+
+function toggleTask(idx) {
+  tasks[idx].completed = !tasks[idx].completed;
+  renderTasks();
+}
+
+function openTaskDrawer(idx) {
+  const t = tasks[idx];
+  document.getElementById('drawerTitle').textContent = t.title;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="drawer-field"><div class="k">Owner</div><div class="v">${t.owner}</div></div>
+    <div class="drawer-field"><div class="k">Due</div><div class="v">${t.due}</div></div>
+    <div class="drawer-field"><div class="k">Project Area</div><div class="v">${t.area}</div></div>
+    <div class="drawer-field"><div class="k">Priority</div><div class="v">${t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}</div></div>
+    <div class="drawer-field"><div class="k">Status</div><div class="v">${t.status}</div></div>
+    <div class="drawer-field"><div class="k">Related Item</div><div class="v">${t.related}</div></div>
+  `;
+  document.getElementById('drawerFooter').innerHTML = `
+    <button class="drawer-btn primary" onclick="toggleTask(${idx}); openTaskDrawer(${idx});">${t.completed ? 'Mark incomplete' : 'Mark complete'}</button>
+    <button class="drawer-btn" onclick="closeDrawer()">Close</button>
+  `;
+  openDrawer();
+}
+
+function renderContacts() {
+  const el = document.getElementById('contactsGrid');
+  el.innerHTML = contacts.map((c, idx) => `
+    <div class="contact-card" onclick="openContactDrawer(${idx})">
+      <div class="contact-top">
+        <div>
+          <div class="contact-name">${c.name}</div>
+          <div class="contact-role">${c.role}</div>
+        </div>
+        <span class="pill ${statusPillClass(c.status)}"><span class="pill-dot"></span>${statusLabel(c.status)}</span>
+      </div>
+      <div class="contact-company">${c.company}</div>
+      <div class="contact-meta">
+        <span class="mono">${c.phone}</span>
+        <span>Last contact: ${c.lastContact}</span>
+      </div>
+      <button class="contact-btn" onclick="event.stopPropagation(); openContactDrawer(${idx})">Contact now</button>
+    </div>
+  `).join('');
+}
+
+function openContactDrawer(idx) {
+  const c = contacts[idx];
+  document.getElementById('drawerTitle').textContent = c.name;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="drawer-field"><div class="k">Role</div><div class="v">${c.role}</div></div>
+    <div class="drawer-field"><div class="k">Company</div><div class="v">${c.company}</div></div>
+    <div class="drawer-field"><div class="k">Phone</div><div class="v mono">${c.phone}</div></div>
+    <div class="drawer-field"><div class="k">Email</div><div class="v mono">${c.email}</div></div>
+    <div class="drawer-field"><div class="k">Status</div><div class="v">${statusLabel(c.status)}</div></div>
+    <div class="drawer-field"><div class="k">Last Contact</div><div class="v">${c.lastContact}</div></div>
+    <div class="drawer-field"><div class="k">Notes</div><div class="v">${c.notes}</div></div>
+  `;
+  document.getElementById('drawerFooter').innerHTML = `
+    <button class="drawer-btn primary" onclick="alert('This is a portfolio demo. In a connected system this would open an email draft or call log to ' + '${c.name}' + '.')">Contact now</button>
+    <button class="drawer-btn" onclick="closeDrawer()">Close</button>
+  `;
+  openDrawer();
+}
+
+function renderRfis() {
+  const el = document.getElementById('rfiTableBody');
+  el.innerHTML = rfis.map((r, idx) => `
+    <tr onclick="openRfiDrawer(${idx})">
+      <td class="td-strong td-mono">${r.number}<br><span class="td-soft" style="font-family:Inter,sans-serif; font-size:12px;">${r.title}</span></td>
+      <td class="td-soft">${r.discipline}</td>
+      <td class="td-soft">${r.assignedTo}</td>
+      <td class="td-mono" style="${r.daysOpen > 15 ? 'color:var(--red); font-weight:700;' : ''}">${r.daysOpen}d</td>
+      <td class="td-mono">${r.due}</td>
+      <td><span class="pill ${statusPillClass(r.status)}"><span class="pill-dot"></span>${statusLabel(r.status)}</span></td>
+      <td class="td-soft">${r.scheduleImpact}</td>
+    </tr>
+  `).join('');
+}
+
+function openRfiDrawer(idx) {
+  const r = rfis[idx];
+  document.getElementById('drawerTitle').textContent = `${r.number} — ${r.title}`;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="drawer-field"><div class="k">Discipline</div><div class="v">${r.discipline}</div></div>
+    <div class="drawer-field"><div class="k">Submitted By</div><div class="v">${r.submittedBy}</div></div>
+    <div class="drawer-field"><div class="k">Assigned To</div><div class="v">${r.assignedTo}</div></div>
+    <div class="drawer-field"><div class="k">Days Open</div><div class="v">${r.daysOpen} days</div></div>
+    <div class="drawer-field"><div class="k">Due</div><div class="v">${r.due}</div></div>
+    <div class="drawer-field"><div class="k">Status</div><div class="v">${statusLabel(r.status)}</div></div>
+    <div class="drawer-field"><div class="k">Schedule Impact</div><div class="v">${r.scheduleImpact}</div></div>
+    <div class="drawer-field"><div class="k">Cost Impact</div><div class="v">${r.costImpact}</div></div>
+  `;
+  document.getElementById('drawerFooter').innerHTML = `<button class="drawer-btn" onclick="closeDrawer()">Close</button>`;
+  openDrawer();
+}
+
+function renderChangeOrders() {
+  const el = document.getElementById('coTableBody');
+  el.innerHTML = changeOrders.map((c, idx) => `
+    <tr onclick="openCoDrawer(${idx})">
+      <td class="td-strong td-mono">${c.number}</td>
+      <td class="td-soft">${c.description}</td>
+      <td class="td-mono td-strong">${c.amount}</td>
+      <td><span class="pill ${statusPillClass(c.status)}"><span class="pill-dot"></span>${statusLabel(c.status)}</span></td>
+      <td class="td-soft">${c.approvalNeeded ? 'Yes' : 'No'}</td>
+      <td class="td-soft">${c.scheduleImpact}</td>
+    </tr>
+  `).join('');
+}
+
+function openCoDrawer(idx) {
+  const c = changeOrders[idx];
+  document.getElementById('drawerTitle').textContent = `${c.number} — ${c.description}`;
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="drawer-field"><div class="k">Amount</div><div class="v mono">${c.amount}</div></div>
+    <div class="drawer-field"><div class="k">Status</div><div class="v">${statusLabel(c.status)}</div></div>
+    <div class="drawer-field"><div class="k">Submitted</div><div class="v">${c.submitted}</div></div>
+    <div class="drawer-field"><div class="k">Owner Approval Needed</div><div class="v">${c.approvalNeeded ? 'Yes' : 'No'}</div></div>
+    <div class="drawer-field"><div class="k">Budget Impact</div><div class="v">${c.budgetImpact}</div></div>
+    <div class="drawer-field"><div class="k">Schedule Impact</div><div class="v">${c.scheduleImpact}</div></div>
+  `;
+  document.getElementById('drawerFooter').innerHTML = `<button class="drawer-btn" onclick="closeDrawer()">Close</button>`;
+  openDrawer();
+}
+
+function renderInspections() {
+  const el = document.getElementById('inspectionTableBody');
+  el.innerHTML = inspections.map(i => `
+    <tr>
+      <td class="td-strong">${i.name}</td>
+      <td class="td-soft">${i.area}</td>
+      <td class="td-mono">${i.scheduled}</td>
+      <td class="td-soft">${i.responsible}</td>
+      <td class="td-mono">${i.readiness}%</td>
+      <td><span class="pill ${statusPillClass(i.risk)}"><span class="pill-dot"></span>${statusLabel(i.risk)}</span></td>
+    </tr>
+  `).join('');
+}
+
+let riskFilter = 'all';
+function renderRisks() {
+  const el = document.getElementById('riskGrid');
+  const filtered = risks.filter(r => riskFilter === 'all' || r.severity === riskFilter);
+  el.innerHTML = filtered.map(r => `
+    <div class="risk-card">
+      <div class="risk-top">
+        <span class="risk-title">${r.title}</span>
+        <span class="pill ${statusPillClass(r.severity)}"><span class="pill-dot"></span>${statusLabel(r.severity)}</span>
+      </div>
+      <div class="risk-meta-row">
+        <span class="risk-meta"><strong>${r.category}</strong> category</span>
+        <span class="risk-meta">Probability: <strong>${r.probability}</strong></span>
+        <span class="risk-meta">Owner: <strong>${r.owner}</strong></span>
+      </div>
+      <div class="risk-mitigation">${r.mitigation}</div>
+    </div>
+  `).join('') || `<div style="grid-column:1/-1; text-align:center; color:var(--slate-light); padding:30px;">No risks match this filter.</div>`;
+}
+
+function renderFeed() {
+  const el = document.getElementById('feedList');
+  const colorMap = { "Daily Log": "var(--slate-light)", "RFI": "var(--red)", "Subcontractor": "var(--gold)", "Inspection": "var(--teal)", "Change Order": "var(--gold)", "Weather": "var(--slate-light)", "Photo": "var(--teal)", "Decision": "var(--red)" };
+  el.innerHTML = activityFeed.map(f => `
+    <div class="feed-item">
+      <div class="feed-time">${f.time}</div>
+      <div class="feed-dot-wrap"><div class="feed-dot" style="background:${colorMap[f.type] || 'var(--slate-light)'}"></div></div>
+      <div class="feed-content">
+        <div class="feed-type">${f.type}</div>
+        <div class="feed-desc">${f.desc}</div>
+        <div class="feed-area">${f.area} · ${f.related}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDecisions() {
+  const el = document.getElementById('decisionList');
+  el.innerHTML = decisions.map(d => `
+    <div class="decision-card">
+      <div class="decision-top">
+        <span class="decision-title">${d.title}</span>
+        <span class="pill pill-gold"><span class="pill-dot"></span>${d.status}</span>
+      </div>
+      <div class="decision-why">${d.why}</div>
+      <div class="decision-grid">
+        <div class="decision-field"><div class="k">Deadline</div><div class="v mono">${d.deadline}</div></div>
+        <div class="decision-field"><div class="k">Required Approver</div><div class="v">${d.approver}</div></div>
+        <div class="decision-field"><div class="k">Recommended Action</div><div class="v">${d.recommended}</div></div>
+        <div class="decision-field"><div class="k">Risk if Delayed</div><div class="v">${d.riskIfDelayed}</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===================== INTERACTIONS ===================== */
+
+function openDrawer() {
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+function runAI(key) {
+  const data = aiBriefs[key];
+  const out = document.getElementById('aiOutput');
+  const label = document.getElementById('aiOutputLabel');
+  const text = document.getElementById('aiOutputText');
+  label.textContent = data.label;
+  text.textContent = data.text;
+  out.classList.add('visible');
+  out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Rail navigation
+document.querySelectorAll('.rail-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById(btn.dataset.section);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Task filters
+document.querySelectorAll('[data-filter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    taskFilter = chip.dataset.filter;
+    renderTasks();
+  });
+});
+
+// Risk filters
+document.querySelectorAll('[data-riskfilter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('[data-riskfilter]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    riskFilter = chip.dataset.riskfilter;
+    renderRisks();
+  });
+});
+
+/* ===================== INIT ===================== */
+renderMilestones();
+renderBudgetChart();
+renderTasks();
+renderContacts();
+renderRfis();
+renderChangeOrders();
+renderInspections();
+renderRisks();
+renderFeed();
+renderDecisions();
+</script>
+</body>
+</html>
