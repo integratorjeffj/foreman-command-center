@@ -1,65 +1,34 @@
 # Foreman Command Center
 
-A frontend portfolio demonstration of an operational command center for complex project execution, designed to bring schedule, budget, tasks, risks, decisions, activity, and AI-assisted management insights into one workspace.
+**A single-screen command center for the project manager on a complex construction job, pulling schedule, budget, tasks, risks, decisions, and activity into one place so the next thing needing attention is visible without opening five systems.**
 
-## Business Problem
+[**Live Demo →**](https://integratorjeffj.github.io/foreman-command-center/) · [How it works](#how-it-works) · [Responsible AI and human controls](#responsible-ai-and-human-controls) · [Limitations](#limitations)
 
-Complex projects often spread critical information across email, spreadsheets, task lists, meeting notes, financial systems, and individual managers' knowledge.
+`HTML5` `CSS` `vanilla JavaScript` `no build step` `no dependencies` `single-file frontend`
 
-That fragmentation makes it difficult to answer basic operational questions quickly:
+Complex projects scatter critical information across email, spreadsheets, task lists, meeting notes, and the heads of individual managers, which makes basic questions slow to answer: what is at risk right now, which decisions are blocking progress, what is behind schedule, and what should be looked at next. Foreman is a frontend prototype that consolidates those signals into one operating environment, built around a fictional construction project.
 
-- What is at risk right now?
-- Which decisions are blocking progress?
-- What is behind schedule?
-- Which budget items need attention?
-- What work is waiting on another person?
-- What changed recently?
-- What should the project manager investigate next?
+## See it in 60 seconds
 
-Foreman explores how those signals could be consolidated into a clearer project-management operating environment.
-
-## Solution
-
-Foreman is a single-page frontend prototype built around a fictional construction project. It presents multiple project-management workspaces through one command-center interface so a manager can move from high-level project health into specific operational details.
-
-The current demonstration includes:
-
-- project overview and health indicators
-- milestone and schedule visibility
-- budget information
-- task tracking
-- project contacts
-- RFIs
-- change orders
-- inspections
-- risk tracking
-- decision tracking
-- project activity timeline
-- simulated AI intelligence workflows
+1. **Click Decisions in the left rail.** The rail carries live badge counts driven by the data, not hard-coded. The first decision asks whether to approve an alternate steel delivery sequence, and states the tradeoff plainly: a 9 day slip instead of a projected 3 week slip if it goes unresolved. Every decision names its approver, its deadline, the risk if delayed, and the related milestone, risk, and subcontractor records.
+2. **Open a decision row to expand the detail drawer, then use Approve or Draft memo.** The action confirms and closes. Nothing persists, which is the point: this demonstrates the decision workflow and the information a manager needs at the moment of choosing, not a system of record.
+3. **Press Generate Owner Update in the header.** It switches to the Intelligence workspace and produces a simulated weekly owner update, timestamped and labeled with its source. No AI model is called, and the interface says so.
 
 All project information is fictional and simulated. No live customer systems, production databases, backend services, or AI APIs are connected.
 
-## Intended User
+## What the demo covers
 
-The primary demonstration user is a project manager responsible for coordinating many interdependent workstreams and stakeholders.
+Twelve workspaces reachable from the left rail: Overview, Schedule, Budget, Tasks, Contacts, RFIs, Change Orders, Inspections, Risks, Decisions, Activity, and Intelligence.
 
-The design is intended to reduce the amount of time required to reconstruct project status from disconnected sources.
+Overdue tasks, overdue RFIs, high-severity risks, and open decisions surface as computed badges on the rail so the queue is visible before any record is opened. Records filter in place through chips rather than separate screens, and detail opens in a drawer over the current context instead of navigating away.
 
-## Workflow
+## Who it is for
 
-A typical Foreman workflow is:
+A project manager coordinating many interdependent workstreams and stakeholders, with the goal of cutting the time spent reconstructing project status from disconnected sources.
 
-1. Review overall project health and priority signals.
-2. Identify schedule, budget, risk, or decision areas requiring attention.
-3. Move into the relevant operational workspace.
-4. Filter or inspect detailed records.
-5. Review the project activity timeline for recent context.
-6. Use simulated AI intelligence tools for synthesis or drafting assistance.
-7. Keep human review responsible for interpretation and action.
+## How it works
 
-## Architecture
-
-The current portfolio demonstration intentionally uses a simple architecture:
+The prototype intentionally uses a simple architecture:
 
 ```text
 Browser
@@ -81,7 +50,7 @@ There is currently:
 - no live project-management integration
 - no production AI service
 
-This keeps the prototype easy to inspect while allowing the product concept and interaction model to be demonstrated.
+This keeps the prototype easy to inspect while allowing the product concept and interaction model to be demonstrated. The entire application is one file, [`index.html`](index.html), readable end to end.
 
 ## Key Design Decisions
 
@@ -119,30 +88,15 @@ A production implementation should maintain several boundaries:
 | Recommendations | Advisory only unless explicitly authorized |
 | External write actions | Authentication, authorization, audit logging, and approval |
 
-## Technology
-
-Current demonstration:
-
-- HTML5
-- CSS
-- vanilla JavaScript
-- inline fictional demonstration data
-- Git and GitHub for version control
-- AI-assisted development
-
-The project deliberately avoids unnecessary frameworks and dependencies at this stage.
-
 ## Demonstration Data
 
 The application uses a fictional project named **Meridian Heights Residences**.
 
 The data exists only to make the interface and workflows understandable. It must not be interpreted as a real customer deployment, production project, or live operational record.
 
-## Validation
+## How this was checked
 
-The current validation goal is product and interaction validation rather than production-system validation.
-
-The demonstration should be checked for:
+The current validation goal is product and interaction validation rather than production-system validation. There is no automated test suite in this repository, and this README does not claim one. Checking is manual, against:
 
 - navigation between workspaces
 - filtering and interactive controls
@@ -151,7 +105,7 @@ The demonstration should be checked for:
 - clear labeling of simulated AI functionality
 - responsive presentation across reasonable browser sizes
 
-Future versions should add automated testing as the architecture becomes more complex.
+Automated testing belongs in a later version, once the architecture is complex enough to justify it. See [Roadmap](#roadmap).
 
 ## Security Considerations
 
@@ -250,5 +204,7 @@ Potential future work, prioritized by portfolio and architectural value:
 Foreman is part of my public portfolio focused on **AI integration, business systems, workflow automation, AI adoption, and operational transformation**.
 
 It is intended to demonstrate how I approach a business problem as an operator and integrator: understand the workflow first, make the important decisions visible, introduce technology deliberately, and keep human accountability clear.
+
+---
 
 [View my GitHub profile](https://github.com/integratorjeffj) · [LinkedIn](https://www.linkedin.com/in/integratorjeffj/)
